@@ -12,8 +12,12 @@ echo "DOCKER_OPTS='-H unix:///var/run/docker.sock --storage-driver aufs --label 
 systemctl restart docker
 
 apt-get update -qq \
- && apt-get install -y -q --no-install-recommends kubelet kubeadm kubectl kubernetes-cni \
+ && apt-get install -y -q --no-install-recommends zsh kubelet kubeadm kubectl kubernetes-cni \
  && apt-get clean
+
+# Install Oh My ZSH
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+sed -ie 's|ZSH_THEME=".*"|ZSH_THEME="ys"|' ~/.zshrc
 
 for arg in "\$@"
 do
