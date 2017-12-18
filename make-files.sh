@@ -16,7 +16,7 @@ apt-get update -qq \
  && apt-get clean
 
 # Install Oh My ZSH
-sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+sh -c "\$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 sed -ie 's|ZSH_THEME=".*"|ZSH_THEME="ys"|' ~/.zshrc
 
 for arg in "\$@"
