@@ -11,6 +11,6 @@ output "slave-ip" {
   value = "${join(",", scaleway_server.kubernetes_slave.*.public_ip)}"
 }
 output "master-ip" {
-  value = "${join(",", scaleway_server.kubernetes_master.public_ip)}"
+  value = "${scaleway_server.kubernetes_master.public_ip}"
 }
 
