@@ -15,11 +15,6 @@ apt-get update -qq \
  && apt-get install -y -q --no-install-recommends zsh kubelet kubeadm kubectl kubernetes-cni \
  && apt-get clean
 
-# Install Oh My ZSH
-wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O ./install-ohmyzsh.sh
-.  ./install-ohmyzsh.sh
-sed -ie 's|ZSH_THEME=".*"|ZSH_THEME="ys"|' ~/.zshrc
-
 for arg in "\$@"
 do
   case \$arg in
@@ -40,5 +35,8 @@ do
       ;;
  esac
 done
+
+# Install Oh My ZSH
+curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh > /tmp/ohmyz.sh && sed -ie 's|env zsh|#env zsh|' /tmp/ohmyz.sh && chmod u+x /tmp/ohmyz.sh && . /tmp/ohmyz.sh && sed -ie 's|ZSH_THEME=".*"|ZSH_THEME="ys"|' ~/.zshrc
 FIN
 rm -rf ./ips.txt
