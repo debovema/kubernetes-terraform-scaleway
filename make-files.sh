@@ -23,9 +23,9 @@ do
       PUBLIC_IP=\$(scw-metadata --cached PUBLIC_IP_ADDRESS)
       PRIVATE_IP=\$(scw-metadata --cached PRIVATE_IP)
 
-      kubeadm --token=\$KUBERNETES_TOKEN --apiserver-advertise-address=\$PUBLIC_IP --service-dns-domain=\$SUID.pub.cloud.scaleway.com init
+      kubeadm --token=\$KUBERNETES_TOKEN --apiserver-advertise-address=\$PUBLIC_IP --service-dns-domain=\$SUID.pub.cloud.scaleway.com --pod-network-cidr=192.168.0.0/16 init
 
-      KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f http://docs.projectcalico.org/v2.3/getting-started/kubernetes/installation/hosted/kubeadm/1.6/calico.yaml
+      KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f http://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/hosted/kubeadm/1.6/calico.yaml
       KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
       break
       ;;
