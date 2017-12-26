@@ -4,10 +4,13 @@ provider "scaleway" {
   region = "${var.region}"
 }
 
+resource "scaleway_ip" "kubernetes_master" {
+}
+
 resource "scaleway_server" "kubernetes_master" {
   name = "${format("${var.kubernetes_cluster_name}-master-%02d", count.index)}"
   image = "${var.base_image_id}"
-  dynamic_ip_required = "${var.dynamic_ip}"
+  public_ip = "${scaleway_ip.kubernetes_master.ip}"
   type = "${var.scaleway_master_type}"
   connection {
     user = "${var.user}"
