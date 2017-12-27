@@ -1,0 +1,183 @@
+apiVersion: v1  
+kind: Namespace  
+metadata:  
+ name: traefik  
+---
+kind: ClusterRole  
+apiVersion: rbac.authorization.k8s.io/v1beta1  
+metadata:  
+ name: traefik-ingress-controller
+rules:  
+ - apiGroups:
+     - ""
+   resources:
+     - pods
+     - services
+     - endpoints
+     - secrets
+   verbs:
+     - get
+     - list
+     - watch
+ - apiGroups:
+     - extensions
+   resources:
+     - ingresses
+   verbs:
+     - get
+     - list
+     - watch
+---
+kind: ClusterRoleBinding  
+apiVersion: rbac.authorization.k8s.io/v1beta1  
+metadata:  
+ name: traefik-ingress-controller
+roleRef:  
+ apiGroup: rbac.authorization.k8s.io
+ kind: ClusterRole
+ name: traefik-ingress-controller
+subjects:  
+- kind: ServiceAccount
+  name: traefik-ingress-controller
+  namespace: traefik
+---
+apiVersion: v1  
+kind: ServiceAccount  
+metadata:  
+ name: traefik-ingress-controller
+ namespace: traefik
+---
+apiVersion: v1  
+kind: ConfigMap  
+metadata:  
+ name: traefik-conf
+ namespace: traefik
+data:  
+ traefik.toml: |-
+   defaultEntryPoints = ["http"]
+   [entryPoints]
+     [entryPoints.http]
+     address = ":80"
+       #[entryPoints.http.redirect]
+       #  entryPoint = "https"
+     [entryPoints.https]
+     address = ":443"
+   [web]
+   address = ":8080"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: traefik-ingress-controller
+  namespace: traefik
+  labels:
+    k8s-app: traefik-ingress-lb
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  template:
+    metadata:
+      labels:
+        k8s-app: traefik-ingress-lb
+        name: traefik-ingress-lb
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Equal
+        effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+      serviceAccountName: traefik-ingress-controller
+      hostNetwork: true
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: config
+          configMap:
+            name: traefik-conf
+      containers:
+        - image: traefik:v1.5.0-rc3
+          name: traefik-ingress-lb
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: "/config"
+              name: "config"
+          ports:
+            - containerPort: 80
+              hostPort: 80
+            - containerPort: 443
+              hostPort: 443
+            - containerPort: 8080
+          args:
+            - --configfile=/config/traefik.toml
+            - --web
+            - --kubernetes
+            - --logLevel=DEBUG
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: traefik
+  labels:
+    k8s-app: traefik-ingress-lb
+spec:
+  selector:
+    k8s-app: traefik-ingress-lb
+  ports:
+    - port: 80
+      name: http
+    - port: 443
+      name: https
+  externalIPs:
+    - 51.15.221.191
+---
+apiVersion: v1  
+kind: Service  
+metadata:  
+ name: traefik-web-ui
+ namespace: traefik
+spec:  
+ selector:
+   k8s-app: traefik-ingress-lb
+ ports:
+ - port: 80
+   targetPort: 8080
+---
+apiVersion: extensions/v1beta1  
+kind: Ingress  
+metadata:  
+ name: traefik-web-ui
+ namespace: traefik
+ annotations:
+   kubernetes.io/ingress.class: traefik
+spec:  
+ rules:
+ - host: "traefik.kub.teecu.be"
+   http:
+     paths:
+     - backend:
+         serviceName: traefik-web-ui
+         servicePort: 80
+---
+apiVersion: extensions/v1beta1  
+kind: Ingress  
+metadata:  
+ name: kubernetes-dashboard
+ namespace: kube-system
+ annotations:
+   kubernetes.io/ingress.class: traefik
+   traefik.frontend.entryPoints: "https"
+spec:  
+ rules:
+ - host: "dashboard.kub.teecu.be"
+   http:
+     paths:
+     - backend:
+         serviceName: kubernetes-dashboard
+         servicePort: 443
