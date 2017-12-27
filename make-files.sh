@@ -12,7 +12,9 @@ echo "DOCKER_OPTS='-H unix:///var/run/docker.sock --storage-driver aufs --label 
 systemctl restart docker
 
 apt-get update -qq \
- && apt-get install -y -q --no-install-recommends zsh kubelet kubeadm kubectl kubernetes-cni \
+ && apt-get install -y -q --no-install-recommends software-properties-common zsh kubelet kubeadm kubectl kubernetes-cni \
+ && add-apt-repository ppa:certbot/certbot -y \
+ && apt-get update -qq && apt-get install certbot -y -q --no-install-recommends \
  && apt-get clean
 
 echo "Kubernetes token is \$KUBERNETES_TOKEN"
@@ -29,13 +31,16 @@ do
       export KUBECONFIG=/etc/kubernetes/admin.conf
       KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
 
+      certbot certonly --standalone -d test.kub.teecu.be -m debovemathieu@gmail.com --agree-tos -n
       mkdir -p /tmp/certs
-      cd /tmp/certs
-      openssl genrsa -des3 -passout pass:x -out dashboard.pass.key 2048
-      openssl rsa -passin pass:x -in dashboard.pass.key -out dashboard.key
-      rm dashboard.pass.key
-      openssl req -new -key dashboard.key -out dashboard.csr -subj '/CN=www.mydom.com/O=My Company Name LTD./C=US'
-      openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
+      cp /etc/letsencrypt/live/test.kub.teecu.be/fullchain.pem /tmp/certs/dashboard.crt
+      cp /etc/letsencrypt/live/test.kub.teecu.be/privkey.pem /tmp/certs/dashboard.key
+#      cd /tmp/certs
+#      openssl genrsa -des3 -passout pass:x -out dashboard.pass.key 2048
+#      openssl rsa -passin pass:x -in dashboard.pass.key -out dashboard.key
+#      rm dashboard.pass.key
+#      openssl req -new -key dashboard.key -out dashboard.csr -subj '/CN=test.kub.teecu.be/O=teecube/C=FR'
+#      openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
       kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n kube-system
       KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
       break
