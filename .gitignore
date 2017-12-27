@@ -4,5 +4,6 @@
 !make-files.sh
 !output.tf
 !sample.terraform.tfvars
+!traefik.yaml
 !vars.tf
 !README.md
