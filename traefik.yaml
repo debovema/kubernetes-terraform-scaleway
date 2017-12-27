@@ -135,7 +135,7 @@ spec:
     - port: 443
       name: https
   externalIPs:
-    - 51.15.221.191
+    - 0.0.0.0 # External IP
 ---
 apiVersion: v1  
 kind: Service  

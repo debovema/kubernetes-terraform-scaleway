@@ -29,20 +29,17 @@ do
 
       kubeadm --token=\$KUBERNETES_TOKEN --apiserver-advertise-address=\$PUBLIC_IP --service-dns-domain=\$SUID.pub.cloud.scaleway.com --pod-network-cidr=192.168.0.0/16 init
       export KUBECONFIG=/etc/kubernetes/admin.conf
-      KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
+      kubectl create -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
 
-      certbot certonly --standalone -d test.kub.teecu.be -m debovemathieu@gmail.com --agree-tos -n
+      # Dashboard certificates
+      certbot certonly --standalone -d dashboard.kub.teecu.be -m debovemathieu@gmail.com --agree-tos -n
       mkdir -p /tmp/certs
-      cp /etc/letsencrypt/live/test.kub.teecu.be/fullchain.pem /tmp/certs/dashboard.crt
-      cp /etc/letsencrypt/live/test.kub.teecu.be/privkey.pem /tmp/certs/dashboard.key
-#      cd /tmp/certs
-#      openssl genrsa -des3 -passout pass:x -out dashboard.pass.key 2048
-#      openssl rsa -passin pass:x -in dashboard.pass.key -out dashboard.key
-#      rm dashboard.pass.key
-#      openssl req -new -key dashboard.key -out dashboard.csr -subj '/CN=test.kub.teecu.be/O=teecube/C=FR'
-#      openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
+      cp /etc/letsencrypt/live/dashboard.kub.teecu.be/fullchain.pem /tmp/certs/dashboard.crt
+      cp /etc/letsencrypt/live/dashboard.kub.teecu.be/privkey.pem /tmp/certs/dashboard.key
+      
       kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n kube-system
-      KUBECONFIG=/etc/kubernetes/admin.conf kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+      kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n traefik
+      kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
       break
       ;;
     'slave')

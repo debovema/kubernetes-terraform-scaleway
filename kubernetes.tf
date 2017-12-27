@@ -35,14 +35,28 @@ resource "scaleway_server" "kubernetes_master" {
     command = "while [ ! -f ./scw-install.sh ]; do sleep 1; done"
   }
 
+  provisioner "local-exec" {
+    command = "sed -i 's|- .* # External IP|- ${self.public_ip} # External IP|' ./traefik.yaml"
+  }
+
   provisioner "file" {
     source = "./scw-install.sh"
     destination = "/tmp/scw-install.sh"
   }
 
+  provisioner "file" {
+    source = "./traefik.yaml"
+    destination = "/tmp/traefik.yaml"
+  }
+
   provisioner "remote-exec" {
     inline = "KUBERNETES_TOKEN=\"${var.kubernetes_token}\" bash /tmp/scw-install.sh master"
   }
+
+  provisioner "remote-exec" {
+    inline = "KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f /tmp/traefik.yaml"
+  }
+
 
 }
 
