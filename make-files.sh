@@ -12,7 +12,7 @@ echo "DOCKER_OPTS='-H unix:///var/run/docker.sock --storage-driver aufs --label 
 systemctl restart docker
 
 apt-get update -qq \
- && apt-get install -y -q --no-install-recommends software-properties-common zsh kubelet kubeadm kubectl kubernetes-cni \
+ && apt-get install -y -q --no-install-recommends apache2-utils software-properties-common zsh kubelet kubeadm kubectl kubernetes-cni \
  && add-apt-repository ppa:certbot/certbot -y \
  && apt-get update -qq && apt-get install certbot -y -q --no-install-recommends \
  && apt-get clean
@@ -36,10 +36,14 @@ do
       mkdir -p /tmp/certs
       cp /etc/letsencrypt/live/dashboard.kub.teecu.be/fullchain.pem /tmp/certs/dashboard.crt
       cp /etc/letsencrypt/live/dashboard.kub.teecu.be/privkey.pem /tmp/certs/dashboard.key
-      
+
+      htpasswd -b -c /tmp/kubernetes-dashboard-auth admin admin
+      kubectl create secret generic -n kube-system kubernetes-dashboard-auth --from-file=/tmp/kubernetes-dashboard-auth
       kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n kube-system
+      kubectl create namespace traefik
       kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n traefik
-      kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+#      kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+      kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/alternative/kubernetes-dashboard.yaml
       break
       ;;
     'slave')
