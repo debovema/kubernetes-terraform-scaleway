@@ -32,12 +32,12 @@ do
       kubectl create -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
 
       # Dashboard certificates
-      certbot certonly --standalone -d dashboard.kub.teecu.be -m debovemathieu@gmail.com --agree-tos -n
+      certbot certonly --standalone -d dashboard.kub.teecu.be -m debovemathieu@gmail.com --agree-tos -n --staging
       mkdir -p /tmp/certs
       cp /etc/letsencrypt/live/dashboard.kub.teecu.be/fullchain.pem /tmp/certs/dashboard.crt
       cp /etc/letsencrypt/live/dashboard.kub.teecu.be/privkey.pem /tmp/certs/dashboard.key
 
-      htpasswd -b -c /tmp/kubernetes-dashboard-auth admin admin
+      htpasswd -b -c /tmp/kubernetes-dashboard-auth \$KUBERNETES_DASHBOARD_USERNAME \$KUBERNETES_DASHBOARD_PASSWORD
       kubectl create secret generic -n kube-system kubernetes-dashboard-auth --from-file=/tmp/kubernetes-dashboard-auth
       kubectl create secret generic kubernetes-dashboard-certs --from-file=/tmp/certs -n kube-system
       kubectl create namespace traefik

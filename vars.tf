@@ -67,3 +67,14 @@ variable "kubernetes_ssh_key_path" {
   description = "Path to your private SSH key for the project"
   default = "./scw"
 }
+
+variable "kubernetes_dashboard_username" {
+  description = "Kubernetes Dashboard username"
+  default = "admin"
+}
+
+variable "kubernetes_dashboard_password" {
+  description = "Kubernetes Dashboard password"
+  default = "admin"
+}
+

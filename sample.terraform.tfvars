@@ -26,3 +26,5 @@ kubernetes_ssh_public_key_path = "./scw.pub"
 
 kubernetes_token = "xxxxxx.ccccccccccccccc"
 
+kubernetes_dashboard_username = "admin"
+kubernetes_dashboard_password = "admin"

@@ -49,14 +49,22 @@ resource "scaleway_server" "kubernetes_master" {
     destination = "/tmp/traefik.yaml"
   }
 
+  provisioner "file" {
+    source = "./kubernetes-dashboard-rbac.yaml"
+    destination = "/tmp/kubernetes-dashboard-rbac.yaml"
+  }
+
   provisioner "remote-exec" {
-    inline = "KUBERNETES_TOKEN=\"${var.kubernetes_token}\" bash /tmp/scw-install.sh master"
+    inline = "KUBERNETES_TOKEN=\"${var.kubernetes_token}\" KUBERNETES_DASHBOARD_USERNAME=\"${var.kubernetes_dashboard_username}\" KUBERNETES_DASHBOARD_PASSWORD=\"${var.kubernetes_dashboard_password}\" bash /tmp/scw-install.sh master"
   }
 
   provisioner "remote-exec" {
     inline = "KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f /tmp/traefik.yaml"
   }
 
+  provisioner "remote-exec" {
+    inline = "KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f /tmp/kubernetes-dashboard-rbac.yaml"
+  }
 
 }
 

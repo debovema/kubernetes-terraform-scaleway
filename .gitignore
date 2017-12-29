@@ -1,6 +1,7 @@
 *
 !.gitignore
 !kubernetes.tf
+!kubernetes-dashboard-rbac.yaml
 !make-files.sh
 !output.tf
 !sample.terraform.tfvars
