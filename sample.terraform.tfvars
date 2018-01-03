@@ -28,3 +28,8 @@ kubernetes_token = "xxxxxx.ccccccccccccccc"
 
 kubernetes_dashboard_username = "admin"
 kubernetes_dashboard_password = "admin"
+
+domain_name = "kub.domain.tld"
+
+le_staging = "false"
+le_email = "please@change.me"

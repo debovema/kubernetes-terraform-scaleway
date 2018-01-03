@@ -78,3 +78,16 @@ variable "kubernetes_dashboard_password" {
   default = "admin"
 }
 
+variable "domain_name" {
+  description = "Domain name used by services, for instance 'traefik.kub.domain.tld' or 'dashboard.kub.domain.tld'"
+  default = "kub.domain.tld"
+}
+
+variable "le_email" {
+  description = "Let's Encrypt registration e-mail"
+}
+
+variable "le_staging" {
+  description = "Whether Let's Encrypt certificates generation should run in staging mode or not"
+  default = "false"
+}

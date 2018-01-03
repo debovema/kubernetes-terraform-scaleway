@@ -167,7 +167,7 @@ metadata:
    kubernetes.io/ingress.class: traefik
 spec:  
  rules:
- - host: "traefik.kub.teecu.be"
+ - host: "traefik.$DOMAIN_NAME"
    http:
      paths:
      - backend:
@@ -187,7 +187,7 @@ metadata:
    ingress.kubernetes.io/auth-secret: kubernetes-dashboard-auth
 spec:  
  rules:
- - host: "dashboard.kub.teecu.be"
+ - host: "dashboard.$DOMAIN_NAME"
    http:
      paths:
      - backend:
